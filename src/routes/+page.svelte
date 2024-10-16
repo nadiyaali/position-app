@@ -1,5 +1,6 @@
 <!-- <script> tag includes JavaScript code -->
 <script>
+    import farmerPic from '$lib/assets/farmer1.jpg'
     import { onMount } from 'svelte'
     import Geolocation from 'svelte-geolocation'
     import {
@@ -7,6 +8,7 @@
         ControlButton,
         ControlGroup,
         DefaultMarker,
+        FillExtrusionLayer,
         FillLayer,
         GeoJSON,
         hoverStateFilter,
@@ -14,6 +16,7 @@
         MapEvents,
         MapLibre,
         Marker,
+        MarkerLayer,
         Popup,
     } from 'svelte-maplibre' // DoNotChange
 
@@ -21,7 +24,9 @@
      * You can put functions you need for multiple components in a js file in
      * the lib folder, export them in lib/index.js and then import them like this
      */
-    import { getDistance, getMapBounds } from '$lib'
+    import { getCropStopPrize, getDistance, getMapBounds } from '$lib'
+
+    let zoom = 8
 
     /**
      * Declare variables
@@ -54,6 +59,23 @@
                 lat: -37.80668719932231,
             },
             label: 'Marker 3',
+            name: 'This is a marker',
+        },
+        {
+            lngLat: {
+                lng: 145.043532,
+                lat: -37.734484,
+            },
+            label: '❀',
+            name: 'This is a marker',
+        },
+
+        {
+            lngLat: {
+                lng: 145.04415478657265,
+                lat: -37.73438068666923,
+            },
+            label: '❀',
             name: 'This is a marker',
         },
     ]
@@ -119,10 +141,17 @@
     let watchedPosition = {}
     let watchedMarker = {}
 
+    let elapsed = 0
+    // 300000 is 5 minutes
+    const duration = 50000
+    let last_time
+
     /**
      * Trigger an action when getting close to a marker
      */
+    let mapCenter
     let count = 0 // number of markers found
+    let cropStopPrize = ''
     $: if (watchedPosition.coords) { // this block is triggered when watchedPosition is updated
         // The tracked position in marker format
         watchedMarker = {
@@ -132,6 +161,10 @@
             },
         }
 
+        mapCenter = [watchedPosition.coords.longitude, watchedPosition.coords.latitude]
+
+        zoom = 16
+
         // Whenever the watched position is updated, check if it is within 10 meters of any marker
         markers.forEach((marker) => {
             const distance = getDistance([watchedMarker, marker])
@@ -139,7 +172,21 @@
             const threshold = 10
 
             if (distance <= threshold) {
-                count += 1
+                if (count === 0) {
+                    count += 1
+                    cropStopPrize = getCropStopPrize()
+                    last_time = window.performance.now()
+                }
+                else {
+                    const time = window.performance.now()
+                    elapsed += Math.min(time - last_time)
+                    if (elapsed > duration) {
+                        count += 1
+                        cropStopPrize = getCropStopPrize()
+                        elapsed = 0
+                        last_time = window.performance.now()
+                    }
+                }
             }
         })
     }
@@ -150,9 +197,9 @@
      * assigned a value
      */
 
-    let showGeoJSON = false
+    // const showGeoJSON = true
     let geojsonData
-
+    let geojsonDataPoints
     /**
      * onMount is executed immediately after the component is mounted, it can be
      * used to load large datasets or to execute code required after the page
@@ -168,9 +215,35 @@
      * 'https://raw.githubusercontent.com/codeforgermany/click_that_hood/main/public/data/melbourne.geojson'
      */
     onMount(async () => {
-        const response = await fetch('melbourne.geojson')
-        geojsonData = await response.json()
+        // const response = await fetch('sa1.geojson')
+        // geojsonData = await response.json()
+
+        // const response2 = await fetch('trafficlight.geojson')
+        // geojsonDataPoints = await response2.json()
+        try {
+            const response1 = await fetch('sa1banyule.geojson')
+            // const response1 = await fetch('sa1melbourne.geojson')
+            if (!response1.ok) { throw new Error('Failed to fetch sa1.geojson') }
+            geojsonData = await response1.json()
+            console.log(geojsonData)
+            console.log('sa1 data loaded')
+        }
+        catch (err) {
+            console.log(err.message)
+        }
+        try {
+            const response2 = await fetch('trafficlight.geojson')
+            if (!response2.ok) { throw new Error('Failed to fetch trafficlight.geojson') }
+            geojsonDataPoints = await response2.json()
+            console.log(geojsonDataPoints)
+            console.log('Points data loaded')
+        }
+
+        catch (err) {
+            console.log(err.message)
+        }
     })
+
 </script>
 
 <!-- Everything after <script> will be HTML for rendering -->
@@ -179,18 +252,54 @@
 <div class="flex flex-col h-[calc(100vh-80px)] w-full">
     <!-- grid, grid-cols-#, col-span-#, md:xxxx are some Tailwind utilities you can use for responsive design -->
     <div class="grid grid-cols-4">
+        <div class="col-span-4 md:col-span-1 text-left">
+            <h1 class="font-bold w-28">Go Farm</h1>
+            <img
+                class="w-28"
+                alt="The game logo"
+                src={farmerPic} />
+
+            <!-- </div>
+        <div class="col-span-4 md:col-span-1 text-left"> -->
+            <!-- <h1 class="font-bold">Automatically updated position when moving</h1> -->
+
+            <button
+                class="btn btn-neutral"
+                on:click={() => {
+                    getPosition = true
+                    watchPosition = true
+                }}
+            >
+                Start Game
+            </button>
+
+            <Geolocation
+                getPosition={watchPosition}
+                options={options}
+                watch={true}
+                on:position={(e) => {
+                    watchedPosition = e.detail
+                }}
+            />
+            <!-- <p class="break-words text-left">Coordinates: {coords}</p>
+            <p class="break-words text-left">watchedPosition: {JSON.stringify(watchedPosition)}</p> -->
+            <!-- <p class="break-words text-left">Current Position Longitude:{watchedPosition.coords.longitude}
+                Latitude:{watchedPosition.coords.latitude}
+            </p> -->
+
+        </div>
         <div class="col-span-4 md:col-span-1 text-center">
-            <h1 class="font-bold">Click button to get a one-time current position and add it to the map</h1>
+            <h1 class="font-bold">Location</h1>
 
             <!-- on:click declares what to do when the button is clicked -->
             <!-- In the HTML part, {} tells the framework to treat what's inside as code (variables or functions), instead of as strings -->
             <!-- () => {} is an arrow function, almost equivalent to function foo() {} -->
-            <button
+            <!-- <button
                 class="btn btn-neutral"
                 on:click={() => { getPosition = true }}
             >
                 Get geolocation
-            </button>
+            </button> -->
 
             <!-- <Geolocation> tag is used to access the Geolocation API -->
             <!-- {getPosition} is equivalent to getPosition={getPosition} -->
@@ -216,7 +325,31 @@
                         Success!
                     {/if}
                     {#if error}
-                        An error occurred. Error code {error.code}: {error.message}.
+                        <!-- An error occurred. Error code {error.code}: {error.message}. -->
+                        {#if error.code === error.PERMISSION_DENIED}
+                            <p>Permission denied. GPS might not be available.</p>
+                        {:else if error.code === error.POSITION_UNAVAILABLE}
+                            <p>Position unavailable. GPS might not be available.</p>
+                        {:else if error.code === error.TIMEOUT}
+                            <p>Request timed out. GPS might not be available.</p>
+                        {:else if error.code === error.UNKNOWN_ERROR}
+                            <p>Unknown error occurred. GPS capability unclear.</p>
+                        {/if}
+
+                        <!-- switch (error.code) {
+                            case error.PERMISSION_DENIED:
+                                document.getElementById('result').innerHTML = '<p>Permission denied. GPS might not be available.</p>';
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                document.getElementById('result').innerHTML = '<p>Position unavailable. GPS might not be available.</p>';
+                                break;
+                            case error.TIMEOUT:
+                                document.getElementById('result').innerHTML = '<p>Request timed out. GPS might not be available.</p>';
+                                break;
+                            case error.UNKNOWN_ERROR:
+                                document.getElementById('result').innerHTML = '<p>Unknown error occurred. GPS capability unclear.</p>';
+                                break; -->
+                        }
                     {/if}
                 {/if}
             </Geolocation>
@@ -225,33 +358,12 @@
             <!-- Objects cannot be directly rendered, use JSON.stringify() to convert it to a string -->
             <p class="break-words text-left">Position: {JSON.stringify(position)}</p>
 
-            <div class="text-center font-medium text-red-500">Note that in some browsers, you cannot repeatedly request the current location. If you need to continuously update the location, use the watch option below.</div>
+            <!-- <div class="text-center font-medium text-red-500">Note that in some browsers, you cannot repeatedly request the current location. If you need to continuously update the location, use the watch option below.</div> -->
         </div>
 
         <!-- This section demonstrates how to get automatically updated user location -->
-        <div class="col-span-4 md:col-span-1 text-center">
-            <h1 class="font-bold">Automatically updated position when moving</h1>
 
-            <button
-                class="btn btn-neutral"
-                on:click={() => { watchPosition = true }}
-            >
-                Start watching
-            </button>
-
-            <Geolocation
-                getPosition={watchPosition}
-                options={options}
-                watch={true}
-                on:position={(e) => {
-                    watchedPosition = e.detail
-                }}
-            />
-
-            <p class="break-words text-left">watchedPosition: {JSON.stringify(watchedPosition)}</p>
-        </div>
-
-        <div class="col-span-4 md:col-span-1 text-center">
+        <!-- <div class="col-span-4 md:col-span-1 text-center">
             <h1 class="font-bold">Toggle Melbourne Suburbs</h1>
 
             <button
@@ -260,12 +372,13 @@
             >
                 Toggle
             </button>
-        </div>
+        </div> -->
 
         <div class="col-span-4 md:col-span-1 text-center">
-            <h1 class="font-bold">Found {count} markers</h1>
+            <h1 class="font-bold">Found {count} Crop Stop</h1>
 
-            The count will go up by one each time you are within 10 meters of a marker.
+            <!-- The count will go up by one each time you are within 10 meters of a marker. -->
+            {cropStopPrize}
         </div>
     </div>
 
@@ -275,12 +388,14 @@
     <!-- "https://tiles.basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json" -->
     <!-- "https://tiles.basemaps.cartocdn.com/gl/voyager-gl-style/style.json" -->
     <MapLibre
-        center={[144.97, -37.81]}
         class="map flex-grow min-h-[500px]"
         standardControls
         style="https://tiles.basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
         bind:bounds
-        zoom={14}
+        bind:zoom={zoom}
+        bind:center={mapCenter}
+        pitch={45}
+        let:map
     >
         <!-- Custom control buttons -->
         <Control class="flex flex-col gap-y-2">
@@ -292,47 +407,59 @@
                 >
                     Fit
                 </ControlButton>
+                <ControlButton
+                    on:click={() => {
+                        map.flyTo({
+                            center: watchedMarker.lngLat,
+                            zoom: 16,
+                        })
+                    }}
+                >
+                    Go
+                </ControlButton>
             </ControlGroup>
         </Control>
 
         <!-- A map event to add a marker when clicked -->
-        <MapEvents on:click={event => addMarker(event, 'Added', 'This is an added marker')} />
+        <!-- <MapEvents on:click={event => addMarker(event, 'Farm Claimed', 'This is your farm')} /> -->
+        <!-- <MapEvents on:click={event => addMarkerFarm(event, 'Farm Claimed', 'This is your farm')} /> -->
 
         <!-- This is how GeoJSON datasets are rendered -->
         <!-- promoteId must be a unique ID field in properties of each feature -->
-        {#if showGeoJSON}
-            <GeoJSON
-                id="geojsonData"
-                data={geojsonData}
-                promoteId="name"
+
+        <GeoJSON
+            id="geojsonData"
+            data={geojsonData}
+            promoteId="sa1_code21"
+        >
+            <FillLayer
+                paint={{
+                    'fill-color': hoverStateFilter('black', 'yellow'),
+                    'fill-opacity': 0.3,
+                }}
+                beforeLayerType="place"
+                manageHoverState
             >
-                <FillLayer
-                    paint={{
-                        'fill-color': hoverStateFilter('purple', 'yellow'),
-                        'fill-opacity': 0.3,
-                    }}
-                    beforeLayerType="symbol"
-                    manageHoverState
+                <Popup
+                    openOn="hover"
+                    let:data
                 >
-                    <Popup
-                        openOn="hover"
-                        let:data
-                    >
-                        {@const props = data?.properties}
-                        {#if props}
-                            <div class="flex flex-col gap-2">
-                                <p>{props.name}</p>
-                            </div>
-                        {/if}
-                    </Popup>
-                </FillLayer>
-                <LineLayer
-                    layout={{ 'line-cap': 'round', 'line-join': 'round' }}
-                    paint={{ 'line-color': 'purple', 'line-width': 3 }}
-                    beforeLayerType="symbol"
-                />
-            </GeoJSON>
-        {/if}
+                    {@const props = data?.properties}
+                    {#if props}
+                        <div class="flex flex-col gap-2">
+                            <p>{props.sa2_name21}</p>
+                            <p>Click to claim farm</p>
+                            {props.geo_point_2d}
+                        </div>
+                    {/if}
+                </Popup>
+            </FillLayer>
+            <LineLayer
+                layout={{ 'line-cap': 'round', 'line-join': 'round' }}
+                paint={{ 'line-color': 'purple', 'line-width': 3 }}
+                beforeLayerType="place"
+            />
+        </GeoJSON>
 
         <!-- Displaying markers, this is reactive -->
         <!-- For-each loop syntax -->
@@ -356,7 +483,54 @@
                 </Popup>
             </Marker>
         {/each}
-
+        <!-- <GeoJSON
+            id="geojsonDataPoints"
+            data={geojsonDataPoints}
+            promoteId="council_re"
+        >
+            <FillLayer
+                paint={{
+                    'fill-color': hoverStateFilter('green', 'yellow'),
+                    'fill-opacity': 0.8,
+                }}
+                beforeLayerType="place"
+                manageHoverState
+            >
+                <Popup
+                    openOn="hover"
+                    let:data
+                >
+                    {@const props = data?.properties}
+                    {#if props}
+                        <div class="flex flex-col gap-2">
+                            <p>{props.council_re}</p>
+                            <p>Click to claim farm</p>
+                            {props.council_re}
+                        </div>5
+                    {/if}
+                </Popup>
+            </FillLayer>
+            <LineLayer
+                layout={{ 'line-cap': 'round', 'line-join': 'round' }}
+                paint={{ 'line-color': 'purple', 'line-width': 3 }}
+                beforeLayerType="place"
+            />
+        </GeoJSON> -->
+        <GeoJSON
+            id="geojsonDataPoints"
+            data={geojsonDataPoints}
+            promoteId="OBJECTID">
+            <MarkerLayer
+                interactive
+                let:feature>
+                <div class="rounded-full bg-rose-300 p-2 shadow">
+                    <div class="text-sm font-bold">❀</div>
+                </div>
+                <Popup openOn="hover">
+                    {feature.properties.SITE_NAME}
+                </Popup>
+            </MarkerLayer>
+        </GeoJSON>
         <!-- Display the watched position as a marker -->
         {#if watchedMarker.lngLat}
             <DefaultMarker lngLat={watchedMarker.lngLat}>

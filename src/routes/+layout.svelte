@@ -5,7 +5,7 @@
 
 <!-- Website title -->
 <svelte:head>
-    <title>Position App</title>
+    <title>Go Farm</title>
 </svelte:head>
 
 <!-- Header -->

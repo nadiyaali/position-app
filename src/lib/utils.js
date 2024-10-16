@@ -53,3 +53,16 @@ export function getDistance(markers) {
 
     return distance
 }
+
+// Define an array of items
+const cropStopMessages = [
+    'Congrats, you won a soil packet ✵',
+    'Congrats, you won a seed packet ⁂',
+    'Congrats, you won a fertilizer packet 🌟',
+    'Congrats, you won a time bonus packet ⌚',
+]
+
+export function getCropStopPrize() {
+    const randomIndex = Math.floor(Math.random() * cropStopMessages.length) // Generate a random index
+    return cropStopMessages[randomIndex] // Get the item at that index
+}
