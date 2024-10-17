@@ -1,4 +1,13 @@
 <!-- <script> tag includes JavaScript code -->
+<!-- TO DO
+1.To find cropstop near watched position create a buffer and check what cropstops are within the buffer,
+Current method is too slow for large number of cropstops
+2. A marker is being placed at the start position. Fix that
+3. Fix opacity of yellow and black color on farms, map below is difficult to view
+4. Store claimed farms in a file
+5. Refresh map on Start Game button
+-->
+
 <script>
     import farmerPic from '$lib/assets/farmer1.jpg'
     import { onMount } from 'svelte'
@@ -26,7 +35,7 @@
      */
     import { getCropStopPrize, getDistance, getMapBounds } from '$lib'
 
-    let zoom = 8
+    let zoom = 14
 
     /**
      * Declare variables
@@ -81,8 +90,8 @@
     ]
 
     // Extent of the map
-    let bounds = getMapBounds(markers)
-
+    // let bounds = getMapBounds(markers)
+    let bounds
     /**
      * Declaring a function
      *
@@ -110,7 +119,7 @@
     let success = false
     let error = ''
     let position = {}
-    let coords = []
+    const coords = []
 
     /**
      * $: indicates a reactive statement, meaning that this block of code is
@@ -125,15 +134,15 @@
     }
 
     $: if (success) {
-        coords = [position.coords.longitude, position.coords.latitude]
-        markers = [
-            ...markers,
-            {
-                lngLat: { lng: coords[0], lat: coords[1] },
-                label: 'Current',
-                name: 'This is the current position',
-            },
-        ]
+    // coords = [position.coords.longitude, position.coords.latitude]
+        // markers = [
+        //     ...markers,
+        //     {
+        //         lngLat: { lng: coords[0], lat: coords[1] },
+        //         label: 'Current',
+        //         name: 'This is the current position',
+        //     },
+        // ]
     }
 
     // Watch a position using Geolocation API if you need continuous updates
@@ -221,19 +230,19 @@
         // const response2 = await fetch('trafficlight.geojson')
         // geojsonDataPoints = await response2.json()
         try {
-            const response1 = await fetch('sa1banyule.geojson')
+            const response1 = await fetch('polygon.geojson')
             // const response1 = await fetch('sa1melbourne.geojson')
-            if (!response1.ok) { throw new Error('Failed to fetch sa1.geojson') }
+            if (!response1.ok) { throw new Error('Failed to fetch polygon.geojson') }
             geojsonData = await response1.json()
             console.log(geojsonData)
-            console.log('sa1 data loaded')
+            console.log('Polygons data loaded')
         }
         catch (err) {
             console.log(err.message)
         }
         try {
-            const response2 = await fetch('trafficlight.geojson')
-            if (!response2.ok) { throw new Error('Failed to fetch trafficlight.geojson') }
+            const response2 = await fetch('points.geojson')
+            if (!response2.ok) { throw new Error('Failed to fetch points.geojson') }
             geojsonDataPoints = await response2.json()
             console.log(geojsonDataPoints)
             console.log('Points data loaded')
@@ -242,6 +251,8 @@
         catch (err) {
             console.log(err.message)
         }
+        // Load data and center the map
+        mapCenter = [144.97, -37.81]
     })
 
 </script>
@@ -251,8 +262,8 @@
 <!-- This section demonstrates how to get the current user location -->
 <div class="flex flex-col h-[calc(100vh-80px)] w-full">
     <!-- grid, grid-cols-#, col-span-#, md:xxxx are some Tailwind utilities you can use for responsive design -->
-    <div class="grid grid-cols-4">
-        <div class="col-span-4 md:col-span-1 text-left">
+    <div class="grid grid-cols-3">
+        <div class="col-span-5 sm:col-span-1 text-left">
             <h1 class="font-bold w-28">Go Farm</h1>
             <img
                 class="w-28"
@@ -266,6 +277,10 @@
             <button
                 class="btn btn-neutral"
                 on:click={() => {
+                    watchPosition = false
+                    watchedPosition = {}
+                    watchedMarker = {}
+                    // This will start reactive code
                     getPosition = true
                     watchPosition = true
                 }}
@@ -288,7 +303,7 @@
             </p> -->
 
         </div>
-        <div class="col-span-4 md:col-span-1 text-center">
+        <div class="col-span-5 sm:col-span-1 text-center">
             <h1 class="font-bold">Location</h1>
 
             <!-- on:click declares what to do when the button is clicked -->
@@ -307,6 +322,7 @@
             <!-- let:variable creates a variable for use from the component's return -->
             <Geolocation
                 {getPosition}
+                {watchPosition}
                 options={options}
                 bind:position
                 let:loading
@@ -335,21 +351,6 @@
                         {:else if error.code === error.UNKNOWN_ERROR}
                             <p>Unknown error occurred. GPS capability unclear.</p>
                         {/if}
-
-                        <!-- switch (error.code) {
-                            case error.PERMISSION_DENIED:
-                                document.getElementById('result').innerHTML = '<p>Permission denied. GPS might not be available.</p>';
-                                break;
-                            case error.POSITION_UNAVAILABLE:
-                                document.getElementById('result').innerHTML = '<p>Position unavailable. GPS might not be available.</p>';
-                                break;
-                            case error.TIMEOUT:
-                                document.getElementById('result').innerHTML = '<p>Request timed out. GPS might not be available.</p>';
-                                break;
-                            case error.UNKNOWN_ERROR:
-                                document.getElementById('result').innerHTML = '<p>Unknown error occurred. GPS capability unclear.</p>';
-                                break; -->
-                        }
                     {/if}
                 {/if}
             </Geolocation>
@@ -374,7 +375,7 @@
             </button>
         </div> -->
 
-        <div class="col-span-4 md:col-span-1 text-center">
+        <div class="col-span-5 sm:col-span-1 text-center">
             <h1 class="font-bold">Found {count} Crop Stop</h1>
 
             <!-- The count will go up by one each time you are within 10 meters of a marker. -->
@@ -430,12 +431,12 @@
         <GeoJSON
             id="geojsonData"
             data={geojsonData}
-            promoteId="sa1_code21"
+            promoteId="FID"
         >
             <FillLayer
                 paint={{
                     'fill-color': hoverStateFilter('black', 'yellow'),
-                    'fill-opacity': 0.3,
+                    'fill-opacity': 0.2,
                 }}
                 beforeLayerType="place"
                 manageHoverState
@@ -447,9 +448,8 @@
                     {@const props = data?.properties}
                     {#if props}
                         <div class="flex flex-col gap-2">
-                            <p>{props.sa2_name21}</p>
+                            <p>{props.SA2_NAME21}</p>
                             <p>Click to claim farm</p>
-                            {props.geo_point_2d}
                         </div>
                     {/if}
                 </Popup>
@@ -465,7 +465,7 @@
         <!-- For-each loop syntax -->
         <!-- markers is an object, lngLat, label, name are the fields in the object -->
         <!-- i is the index, () indicates the unique ID for each item, duplicate IDs will lead to errors -->
-        {#each markers as { lngLat, label, name }, i (i)}
+        <!-- {#each markers as { lngLat, label, name }, i (i)}
             <Marker
                 {lngLat}
                 class="grid h-8 w-14 place-items-center rounded-md border
@@ -482,7 +482,7 @@
                     <div class="text-lg font-bold">{name}</div>
                 </Popup>
             </Marker>
-        {/each}
+        {/each} -->
         <!-- <GeoJSON
             id="geojsonDataPoints"
             data={geojsonDataPoints}
