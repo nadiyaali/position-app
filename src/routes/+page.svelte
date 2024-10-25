@@ -172,7 +172,7 @@ Current method is too slow for large number of cropstops
 
         mapCenter = [watchedPosition.coords.longitude, watchedPosition.coords.latitude]
 
-        zoom = 16
+        zoom = 18
 
         // Whenever the watched position is updated, check if it is within 10 meters of any marker
         markers.forEach((marker) => {
@@ -230,14 +230,18 @@ Current method is too slow for large number of cropstops
         // const response2 = await fetch('trafficlight.geojson')
         // geojsonDataPoints = await response2.json()
         try {
-            const response1 = await fetch('polygon.geojson')
+            // const response1 = await fetch('urban_heat_2018.geojson')
             // const response1 = await fetch('sa1melbourne.geojson')
-            if (!response1.ok) { throw new Error('Failed to fetch polygon.geojson') }
+            const response1 = await fetch('polygon.geojson')
+            // const response1 = await fetch('footpaths.geojson')
+
+            if (!response1.ok) { throw new Error('Failed to fetch urban_heat_2018.geojson') }
             geojsonData = await response1.json()
             console.log(geojsonData)
             console.log('Polygons data loaded')
         }
         catch (err) {
+            console.log('ERROR')
             console.log(err.message)
         }
         try {
@@ -264,7 +268,7 @@ Current method is too slow for large number of cropstops
     <!-- grid, grid-cols-#, col-span-#, md:xxxx are some Tailwind utilities you can use for responsive design -->
     <div class="grid grid-cols-3">
         <div class="col-span-5 sm:col-span-1 text-left">
-            <h1 class="font-bold w-28">Go Farm</h1>
+            <h1 class="font-bold w-28">Make City Green</h1>
             <img
                 class="w-28"
                 alt="The game logo"
@@ -387,11 +391,12 @@ Current method is too slow for large number of cropstops
     <!-- More basemap options -->
     <!-- "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json" -->
     <!-- "https://tiles.basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json" -->
-    <!-- "https://tiles.basemaps.cartocdn.com/gl/voyager-gl-style/style.json" -->
+    <!-- "https://tiles.basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
+     EtFDKqqHq3Xwv4EiseJp -->
     <MapLibre
         class="map flex-grow min-h-[500px]"
         standardControls
-        style="https://tiles.basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
+        style="https://api.maptiler.com/maps/streets-v2/style.json?key=EtFDKqqHq3Xwv4EiseJp"
         bind:bounds
         bind:zoom={zoom}
         bind:center={mapCenter}
@@ -412,7 +417,7 @@ Current method is too slow for large number of cropstops
                     on:click={() => {
                         map.flyTo({
                             center: watchedMarker.lngLat,
-                            zoom: 16,
+                            zoom: 18,
                         })
                     }}
                 >
@@ -422,7 +427,7 @@ Current method is too slow for large number of cropstops
         </Control>
 
         <!-- A map event to add a marker when clicked -->
-        <!-- <MapEvents on:click={event => addMarker(event, 'Farm Claimed', 'This is your farm')} /> -->
+        <MapEvents on:click={event => addMarker(event, '', 'Your Tree')} />
         <!-- <MapEvents on:click={event => addMarkerFarm(event, 'Farm Claimed', 'This is your farm')} /> -->
 
         <!-- This is how GeoJSON datasets are rendered -->
@@ -431,33 +436,32 @@ Current method is too slow for large number of cropstops
         <GeoJSON
             id="geojsonData"
             data={geojsonData}
-            promoteId="FID"
+            promoteId="MBCODE_16"
         >
             <FillLayer
                 paint={{
                     'fill-color': hoverStateFilter('black', 'yellow'),
-                    'fill-opacity': 0.2,
+                    'fill-opacity': 0.1,
                 }}
-                beforeLayerType="place"
+                beforeLayerType="buildings"
                 manageHoverState
             >
-                <Popup
+                <!-- <Popup
                     openOn="hover"
                     let:data
                 >
                     {@const props = data?.properties}
                     {#if props}
                         <div class="flex flex-col gap-2">
-                            <p>{props.SA2_NAME21}</p>
-                            <p>Click to claim farm</p>
+                            <p>{props.SA2_NAME16}</p>
                         </div>
                     {/if}
-                </Popup>
+                </Popup> -->
             </FillLayer>
             <LineLayer
                 layout={{ 'line-cap': 'round', 'line-join': 'round' }}
                 paint={{ 'line-color': 'purple', 'line-width': 3 }}
-                beforeLayerType="place"
+                beforeLayerType="buildings"
             />
         </GeoJSON>
 
@@ -465,24 +469,49 @@ Current method is too slow for large number of cropstops
         <!-- For-each loop syntax -->
         <!-- markers is an object, lngLat, label, name are the fields in the object -->
         <!-- i is the index, () indicates the unique ID for each item, duplicate IDs will lead to errors -->
-        <!-- {#each markers as { lngLat, label, name }, i (i)}
+        {#each markers as { lngLat, label, name }, i (i)}
             <Marker
                 {lngLat}
-                class="grid h-8 w-14 place-items-center rounded-md border
-                    border-gray-200 bg-red-300 text-black shadow-2xl
+                class="grid h-14 w-14 place-items-center
                     focus:outline-2 focus:outline-black"
             >
-                <span>
+                <!-- <span>
                     {label}
-                </span>
-
+                </span> -->
+                <!-- <div class="rounded-full bg-orange-200 p-1">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                    ><path
+                        fill="currentColor"
+                        d="M14 11.5A2.5 2.5 0 0 0 16.5 9A2.5 2.5 0 0 0 14 6.5A2.5 2.5 0 0 0 11.5 9a2.5 2.5 0 0 0 2.5 2.5M14 2c3.86 0 7 3.13 7 7c0 5.25-7 13-7 13S7 14.25 7 9a7 7 0 0 1 7-7M5 9c0 4.5 5.08 10.66 6 11.81L10 22S3 14.25 3 9c0-3.17 2.11-5.85 5-6.71C6.16 3.94 5 6.33 5 9Z"
+                    /></svg
+                    >
+                </div> -->
+                <div>
+                    <svg
+                        width="36"
+                        height="36"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"><g
+                        id="SVGRepo_bgCarrier"
+                        stroke-width="0"></g><g
+                        id="SVGRepo_tracerCarrier"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path
+                        d="M4 4C4 1.79086 5.79086 0 8 0C9.86384 0 11.4299 1.27477 11.874 3H12C14.2091 3 16 4.79086 16 7C16 9.20914 14.2091 11 12 11H9V14H11V16H5V14H7V11H3.5C1.567 11 0 9.433 0 7.5C0 5.567 1.567 4 3.5 4H4Z"
+                        fill="#069C56"></path> </g></svg>
+                </div>
                 <Popup
                     openOn="hover"
-                    offset={[0, -10]}>
+                    offset={[0, -0]}>
                     <div class="text-lg font-bold">{name}</div>
                 </Popup>
             </Marker>
-        {/each} -->
+        {/each}
         <!-- <GeoJSON
             id="geojsonDataPoints"
             data={geojsonDataPoints}
@@ -523,8 +552,8 @@ Current method is too slow for large number of cropstops
             <MarkerLayer
                 interactive
                 let:feature>
-                <div class="rounded-full bg-rose-300 p-2 shadow">
-                    <div class="text-sm font-bold">❀</div>
+                <div class="rounded-full bg-orange-200 p-1 shadow">
+                    <div class="text-sm font-bold">🍀</div>
                 </div>
                 <Popup openOn="hover">
                     {feature.properties.SITE_NAME}
@@ -539,6 +568,47 @@ Current method is too slow for large number of cropstops
                 </Popup>
             </DefaultMarker>
         {/if}
+
+        <FillExtrusionLayer
+            source="maptiler_planet"
+            sourceLayer="building"
+            beforeLayerType={l => l.type === 'symbol' && !!l.paint?.['text-color']}
+            minzoom={14}
+            paint={{
+                // Show lower buildings in green, higher in red.
+                'fill-extrusion-color': [
+                    'interpolate',
+                    ['linear'],
+                    ['get', 'render_height'],
+                    0,
+                    '#d4d4d4',
+                    70,
+                    '#29849f',
+                ],
+
+                // use an 'interpolate' expression to add a smooth transition effect to the
+      // buildings as the user zooms in
+                'fill-extrusion-height': [
+                    'interpolate',
+                    ['linear'],
+                    ['zoom'],
+                    14,
+                    0,
+                    14.05,
+                    ['get', 'render_height'],
+                ],
+                'fill-extrusion-base': [
+                    'interpolate',
+                    ['linear'],
+                    ['zoom'],
+                    14,
+                    0,
+                    14.05,
+                    ['get', 'render_min_height'],
+                ],
+                'fill-extrusion-opacity': 0.9,
+            }}
+        />
     </MapLibre>
 </div>
 
