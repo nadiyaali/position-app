@@ -319,19 +319,19 @@ Current method is too slow for large number of cropstops
 <!-- This section demonstrates how to get the current user location -->
 <div class="flex flex-col h-[calc(100vh-80px)] w-full">
     <!-- grid, grid-cols-#, col-span-#, md:xxxx are some Tailwind utilities you can use for responsive design -->
-    <div class="grid grid-cols-3">
-        <div class="col-span-1 sm:col-span-1 text-center">
-            <div class="card card-side bg-base-100 shadow-xl">
+    <div class="grid grid-cols-3 gap-4">
+        <div class="col-span-1 md:col-span-1">
+            <div class="card card-compact bg-base-100 shadow-md text-center">
                 <figure>
                     <img
-                        class="w-36"
+                        class="w-28"
                         src={farmerPic}
                         alt="Game logo" />
                 </figure>
                 <div class="card-body">
-                    <h2 class="card-title">Make City Green</h2>
+                    <h2 class="card-title justify-center">Make City Green</h2>
                     <p>Help us fight climate change</p>
-                    <div class="card-actions justify-end">
+                    <div class="card-actions justify-center">
                         <button
                             class="btn btn-accent"
                             on:click={() => {
@@ -384,10 +384,11 @@ Current method is too slow for large number of cropstops
 
             </div>
         </div>
-        <div class="col-span-1 sm:col-span-1 text-center">
-            <div class="card bg-base-100 w-96 shadow-xl">
+        <div class="col-span-1 md:col-span-1 text-center">
+            <div class="card card-compact bg-base-100 shadow-md">
                 <div class="card-body justify-center">
-                    <h2 class="card-title justify-center">Location</h2>
+                    <h2 class="card-title justify-center">Your Location</h2>
+                    <div></div>
                     <!-- <h1 class="font-bold">Location</h1> -->
 
                     <!-- on:click declares what to do when the button is clicked -->
@@ -465,8 +466,8 @@ Current method is too slow for large number of cropstops
             </button>
         </div> -->
 
-        <div class="col-span-1 sm:col-span-1 text-center">
-            <div class="card bg-base-100 w-96 shadow-xl">
+        <div class="col-span-1 md:col-span-1 text-center">
+            <div class="card card-compact bg-base-100 shadow-md">
                 <div class="card-body justify-center">
                     <h2 class="card-title justify-center">Found {count} Crop Stop</h2>
                     <!-- The count will go up by one each time you are within 10 meters of a marker. -->
