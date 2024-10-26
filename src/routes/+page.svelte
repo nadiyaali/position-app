@@ -33,7 +33,7 @@ Current method is too slow for large number of cropstops
      * You can put functions you need for multiple components in a js file in
      * the lib folder, export them in lib/index.js and then import them like this
      */
-    import { getCropStopPrize, getDistance, getMapBounds } from '$lib'
+    import { getCropStopPrize, getDistance, getMapBounds, getUHI } from '$lib'
 
     let zoom = 14
 
@@ -172,8 +172,7 @@ Current method is too slow for large number of cropstops
     let success = false
     let error = ''
     let position = {}
-    const coords = []
-
+    let coords = []
     /**
      * $: indicates a reactive statement, meaning that this block of code is
      * executed whenever the variable used as the condition changes its value
@@ -182,8 +181,8 @@ Current method is too slow for large number of cropstops
      * has been successfully obtained. Immediately update the relevant variables
      */
     $: if (success || error) {
-        // reset the flag
-        getPosition = false
+    // reset the flag
+        // getPosition = false
     }
 
     $: if (success) {
@@ -222,7 +221,8 @@ Current method is too slow for large number of cropstops
                 lat: watchedPosition.coords.latitude,
             },
         }
-
+        // coords = [watchedPosition.coords.longitude, watchedPosition.coords.latitude]
+        coords = ['Longitude : ', watchedPosition.coords.longitude, 'Latitude : ', watchedPosition.coords.latitude, 'Accuracy : ', watchedPosition.coords.accuracy, 'm', 'Speed : ', watchedPosition.coords.speed]
         mapCenter = [watchedPosition.coords.longitude, watchedPosition.coords.latitude]
 
         zoom = 18
@@ -320,17 +320,40 @@ Current method is too slow for large number of cropstops
 <div class="flex flex-col h-[calc(100vh-80px)] w-full">
     <!-- grid, grid-cols-#, col-span-#, md:xxxx are some Tailwind utilities you can use for responsive design -->
     <div class="grid grid-cols-3">
-        <div class="col-span-1 sm:col-span-1 text-left">
-            <h1 class="font-bold w-28">Make City Green</h1>
+        <div class="col-span-1 sm:col-span-1 text-center">
+            <div class="card card-side bg-base-100 shadow-xl">
+                <figure>
+                    <img
+                        class="w-36"
+                        src={farmerPic}
+                        alt="Game logo" />
+                </figure>
+                <div class="card-body">
+                    <h2 class="card-title">Make City Green</h2>
+                    <p>Help us fight climate change</p>
+                    <div class="card-actions justify-end">
+                        <button
+                            class="btn btn-accent"
+                            on:click={() => {
+                                watchPosition = false
+                                watchedPosition = {}
+                                watchedMarker = {}
+                                // This will start reactive code
+                                getPosition = true
+                                watchPosition = true
+                            }}
+                        >
+                            Start Game
+                        </button>
+
+                    </div>
+                </div>
+
+                <!-- <h1 class="font-bold w-28">Make City Green</h1>
             <img
                 class="w-28"
                 alt="The game logo"
                 src={farmerPic} />
-
-            <!-- </div>
-        <div class="col-span-4 md:col-span-1 text-left"> -->
-            <!-- <h1 class="font-bold">Automatically updated position when moving</h1> -->
-
             <button
                 class="btn btn-neutral"
                 on:click={() => {
@@ -343,80 +366,90 @@ Current method is too slow for large number of cropstops
                 }}
             >
                 Start Game
-            </button>
+            </button> -->
 
-            <Geolocation
-                getPosition={watchPosition}
-                options={options}
-                watch={true}
-                on:position={(e) => {
-                    watchedPosition = e.detail
-                }}
-            />
-            <!-- <p class="break-words text-left">Coordinates: {coords}</p>
+                <Geolocation
+                    getPosition={watchPosition}
+                    options={options}
+                    watch={true}
+                    on:position={(e) => {
+                        watchedPosition = e.detail
+                    }}
+                />
+                <!-- <p class="break-words text-left">Coordinates: {coords}</p>
             <p class="break-words text-left">watchedPosition: {JSON.stringify(watchedPosition)}</p> -->
-            <!-- <p class="break-words text-left">Current Position Longitude:{watchedPosition.coords.longitude}
+                <!-- <p class="break-words text-left">Current Position Longitude:{watchedPosition.coords.longitude}
                 Latitude:{watchedPosition.coords.latitude}
             </p> -->
 
+            </div>
         </div>
         <div class="col-span-1 sm:col-span-1 text-center">
-            <h1 class="font-bold">Location</h1>
+            <div class="card bg-base-100 w-96 shadow-xl">
+                <div class="card-body justify-center">
+                    <h2 class="card-title justify-center">Location</h2>
+                    <!-- <h1 class="font-bold">Location</h1> -->
 
-            <!-- on:click declares what to do when the button is clicked -->
-            <!-- In the HTML part, {} tells the framework to treat what's inside as code (variables or functions), instead of as strings -->
-            <!-- () => {} is an arrow function, almost equivalent to function foo() {} -->
-            <!-- <button
+                    <!-- on:click declares what to do when the button is clicked -->
+                    <!-- In the HTML part, {} tells the framework to treat what's inside as code (variables or functions), instead of as strings -->
+                    <!-- () => {} is an arrow function, almost equivalent to function foo() {} -->
+                    <!-- <button
                 class="btn btn-neutral"
                 on:click={() => { getPosition = true }}
             >
                 Get geolocation
             </button> -->
 
-            <!-- <Geolocation> tag is used to access the Geolocation API -->
-            <!-- {getPosition} is equivalent to getPosition={getPosition} -->
-            <!-- bind:variable associates the parameter with the variable with the same name declared in <script> reactively -->
-            <!-- let:variable creates a variable for use from the component's return -->
-            <Geolocation
-                {getPosition}
-                {watchPosition}
-                options={options}
-                bind:position
-                let:loading
-                bind:success
-                bind:error
-                let:notSupported
-            >
-                <!-- If-else block syntax -->
-                {#if notSupported}
-                    Your browser does not support the Geolocation API.
-                {:else}
-                    {#if loading}
-                        Loading...
-                    {/if}
-                    {#if success}
-                        Success!
-                    {/if}
-                    {#if error}
-                        <!-- An error occurred. Error code {error.code}: {error.message}. -->
-                        {#if error.code === error.PERMISSION_DENIED}
-                            <p>Permission denied. GPS might not be available.</p>
-                        {:else if error.code === error.POSITION_UNAVAILABLE}
-                            <p>Position unavailable. GPS might not be available.</p>
-                        {:else if error.code === error.TIMEOUT}
-                            <p>Request timed out. GPS might not be available.</p>
-                        {:else if error.code === error.UNKNOWN_ERROR}
-                            <p>Unknown error occurred. GPS capability unclear.</p>
+                    <!-- <Geolocation> tag is used to access the Geolocation API -->
+                    <!-- {getPosition} is equivalent to getPosition={getPosition} -->
+                    <!-- bind:variable associates the parameter with the variable with the same name declared in <script> reactively -->
+                    <!-- let:variable creates a variable for use from the component's return -->
+                    <Geolocation
+                        {getPosition}
+                        {watchPosition}
+                        options={options}
+                        bind:position
+                        let:loading
+                        bind:success
+                        bind:error
+                        let:notSupported
+                    >
+                        <!-- If-else block syntax -->
+                        {#if notSupported}
+                            Your browser does not support the Geolocation API.
+                        {:else}
+                            {#if loading}
+                                <!-- Loading... -->
+                                <div class="justify-center">
+                                    <span class="loading loading-ring loading-lg"></span>
+                                </div>
+                            {/if}
+                            {#if success}
+                                Success!
+                            {/if}
+                            {#if error}
+                                <!-- An error occurred. Error code {error.code}: {error.message}. -->
+                                {#if error.code === error.PERMISSION_DENIED}
+                                    <p>Permission denied. GPS might not be available.</p>
+                                {:else if error.code === error.POSITION_UNAVAILABLE}
+                                    <p>Position unavailable. GPS might not be available.</p>
+                                {:else if error.code === error.TIMEOUT}
+                                    <p>Request timed out. GPS might not be available.</p>
+                                {:else if error.code === error.UNKNOWN_ERROR}
+                                    <p>Unknown error occurred. GPS capability unclear.</p>
+                                {/if}
+                            {/if}
                         {/if}
-                    {/if}
-                {/if}
-            </Geolocation>
+                    </Geolocation>
 
-            <p class="break-words text-left">Coordinates: {coords}</p>
-            <!-- Objects cannot be directly rendered, use JSON.stringify() to convert it to a string -->
-            <p class="break-words text-left">Position: {JSON.stringify(position)}</p>
-
-            <!-- <div class="text-center font-medium text-red-500">Note that in some browsers, you cannot repeatedly request the current location. If you need to continuously update the location, use the watch option below.</div> -->
+                    <!-- <p class="break-words text-left">Coordinates:</p> -->
+                    <!-- Objects cannot be directly rendered, use JSON.stringify() to convert it to a string -->
+                    <!-- <p class="break-words text-left">Position: {JSON.stringify(position, null, 4)}</p> -->
+                    <p class="break-words text-left">{#each coords as item, i (i)}
+                        {item}
+                    {/each}</p>
+                </div>
+            </div>
         </div>
 
         <!-- This section demonstrates how to get automatically updated user location -->
@@ -433,10 +466,13 @@ Current method is too slow for large number of cropstops
         </div> -->
 
         <div class="col-span-1 sm:col-span-1 text-center">
-            <h1 class="font-bold">Found {count} Crop Stop</h1>
-
-            <!-- The count will go up by one each time you are within 10 meters of a marker. -->
-            {cropStopPrize}
+            <div class="card bg-base-100 w-96 shadow-xl">
+                <div class="card-body justify-center">
+                    <h2 class="card-title justify-center">Found {count} Crop Stop</h2>
+                    <!-- The count will go up by one each time you are within 10 meters of a marker. -->
+                    {cropStopPrize}
+                </div>
+            </div>
         </div>
     </div>
 
@@ -447,7 +483,7 @@ Current method is too slow for large number of cropstops
     <!-- "https://tiles.basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
      EtFDKqqHq3Xwv4EiseJp -->
     <MapLibre
-        class="map flex-grow min-h-[500px]"
+        class="map flex-grow min-h-[600px]"
         standardControls
         style="https://api.maptiler.com/maps/streets-v2/style.json?key=EtFDKqqHq3Xwv4EiseJp"
         bind:bounds
@@ -485,36 +521,35 @@ Current method is too slow for large number of cropstops
 
         <!-- This is how GeoJSON datasets are rendered -->
         <!-- promoteId must be a unique ID field in properties of each feature -->
-
         <GeoJSON
             id="geojsonData"
             data={geojsonData}
-            promoteId="MBCODE_16"
+            promoteId="FID"
         >
             <FillLayer
                 paint={{
                     'fill-color': hoverStateFilter('black', 'yellow'),
                     'fill-opacity': 0.1,
                 }}
-                beforeLayerType="buildings"
+                beforeLayerType="building"
                 manageHoverState
             >
-                <!-- <Popup
+                <Popup
                     openOn="hover"
                     let:data
                 >
                     {@const props = data?.properties}
                     {#if props}
                         <div class="flex flex-col gap-2">
-                            <p>{props.SA2_NAME21}</p>
+                            <p><b>{props.SA2_NAME21} UHI: </b>{getUHI()} </p>
                         </div>
                     {/if}
-                </Popup> -->
+                </Popup>
             </FillLayer>
             <LineLayer
                 layout={{ 'line-cap': 'round', 'line-join': 'round' }}
                 paint={{ 'line-color': 'purple', 'line-width': 3 }}
-                beforeLayerType="buildings"
+                beforeLayerType="building"
             />
         </GeoJSON>
 
@@ -624,7 +659,7 @@ Current method is too slow for large number of cropstops
                     <div class="text-sm font-bold">🍀</div>
                 </div>
                 <Popup openOn="hover">
-                    {feature.properties.SITE_NAME}
+                    <b>Crop Stop: </b>{feature.properties.SITE_NAME}
                 </Popup>
             </MarkerLayer>
         </GeoJSON>
@@ -636,7 +671,6 @@ Current method is too slow for large number of cropstops
                 </Popup>
             </DefaultMarker>
         {/if}
-
         <FillExtrusionLayer
             source="maptiler_planet"
             sourceLayer="building"
@@ -655,7 +689,7 @@ Current method is too slow for large number of cropstops
                 ],
 
                 // use an 'interpolate' expression to add a smooth transition effect to the
-      // buildings as the user zooms in
+// buildings as the user zooms in
                 'fill-extrusion-height': [
                     'interpolate',
                     ['linear'],

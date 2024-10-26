@@ -54,6 +54,38 @@ export function getDistance(markers) {
     return distance
 }
 
+/**
+ * Compute the distance between two markers
+ * @param markers Map markers to compute the distance between
+ * @returns Distance between the two markers
+ */
+// Define an array UHI, from 10.20°C to -7.16°C
+const uhiList = [
+    '10.20°C ♨',
+    '9.80°C ♨',
+    '8.40°C ♨',
+    '7.90°C ♨',
+    '6.60°C ♨',
+    '5.20°C ♨',
+    '4.80°C ♨',
+    '3.70°C ♨',
+    '3.20°C ♨',
+    '0.40°C ♨',
+    '-1.30°C ❆',
+    '-2.20°C ❆',
+    '-3.20°C ❆',
+    '-4.20°C ❆',
+    '-5.20°C ❆',
+    '-6.20°C ❆',
+    '-7.16°C ❆',
+]
+
+export function getUHI() {
+    // Return some randome Urban Heat Island Index
+    const randomIndex = Math.floor(Math.random() * uhiList.length) // Generate a random index
+    return uhiList[randomIndex] // Get the item at that index
+}
+
 // Define an array of items
 const cropStopMessages = [
     'Congrats, you won a soil packet ✵',
