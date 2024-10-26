@@ -45,7 +45,60 @@ Current method is too slow for large number of cropstops
      * Note the format of markers
      */
 
+    // let markers = [
+    //     {
+    //         lngLat: {
+    //             lng: 144.9638347277324,
+    //             lat: -37.80967960080751,
+    //         },
+    //         label: 'Marker 1',
+    //         name: 'This is a marker',
+    //     },
+    //     {
+    //         lngLat: {
+    //             lng: 144.96318039790924,
+    //             lat: -37.808357984258315,
+    //         },
+    //         label: 'Marker 2',
+    //         name: 'This is a marker',
+    //     },
+    //     {
+    //         lngLat: {
+    //             lng: 144.96280297287632,
+    //             lat: -37.80668719932231,
+    //         },
+    //         label: 'Marker 3',
+    //         name: 'This is a marker',
+    //     },
+    //     {
+    //         lngLat: {
+    //             lng: 145.043532,
+    //             lat: -37.734484,
+    //         },
+    //         label: '❀',
+    //         name: 'This is a marker',
+    //     },
+
+    //     {
+    //         lngLat: {
+    //             lng: 145.04415478657265,
+    //             lat: -37.73438068666923,
+    //         },
+    //         label: '❀',
+    //         name: 'This is a marker',
+    //     },
+    // ]
     let markers = [
+        {
+            lngLat: {
+                lng: 144.9638347277324,
+                lat: -37.80967960080751,
+            },
+            label: 'Marker 1',
+            name: 'This is a marker',
+        },
+    ]
+    const markersCropStops = [
         {
             lngLat: {
                 lng: 144.9638347277324,
@@ -64,8 +117,8 @@ Current method is too slow for large number of cropstops
         },
         {
             lngLat: {
-                lng: 144.96280297287632,
-                lat: -37.80668719932231,
+                lng: 144.965058,
+                lat: -37.807303,
             },
             label: 'Marker 3',
             name: 'This is a marker',
@@ -175,7 +228,7 @@ Current method is too slow for large number of cropstops
         zoom = 18
 
         // Whenever the watched position is updated, check if it is within 10 meters of any marker
-        markers.forEach((marker) => {
+        markersCropStops.forEach((marker) => {
             const distance = getDistance([watchedMarker, marker])
 
             const threshold = 10
@@ -267,7 +320,7 @@ Current method is too slow for large number of cropstops
 <div class="flex flex-col h-[calc(100vh-80px)] w-full">
     <!-- grid, grid-cols-#, col-span-#, md:xxxx are some Tailwind utilities you can use for responsive design -->
     <div class="grid grid-cols-3">
-        <div class="col-span-5 sm:col-span-1 text-left">
+        <div class="col-span-1 sm:col-span-1 text-left">
             <h1 class="font-bold w-28">Make City Green</h1>
             <img
                 class="w-28"
@@ -307,7 +360,7 @@ Current method is too slow for large number of cropstops
             </p> -->
 
         </div>
-        <div class="col-span-5 sm:col-span-1 text-center">
+        <div class="col-span-1 sm:col-span-1 text-center">
             <h1 class="font-bold">Location</h1>
 
             <!-- on:click declares what to do when the button is clicked -->
@@ -379,7 +432,7 @@ Current method is too slow for large number of cropstops
             </button>
         </div> -->
 
-        <div class="col-span-5 sm:col-span-1 text-center">
+        <div class="col-span-1 sm:col-span-1 text-center">
             <h1 class="font-bold">Found {count} Crop Stop</h1>
 
             <!-- The count will go up by one each time you are within 10 meters of a marker. -->
@@ -453,7 +506,7 @@ Current method is too slow for large number of cropstops
                     {@const props = data?.properties}
                     {#if props}
                         <div class="flex flex-col gap-2">
-                            <p>{props.SA2_NAME16}</p>
+                            <p>{props.SA2_NAME21}</p>
                         </div>
                     {/if}
                 </Popup> -->
@@ -504,6 +557,21 @@ Current method is too slow for large number of cropstops
                         stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path
                         d="M4 4C4 1.79086 5.79086 0 8 0C9.86384 0 11.4299 1.27477 11.874 3H12C14.2091 3 16 4.79086 16 7C16 9.20914 14.2091 11 12 11H9V14H11V16H5V14H7V11H3.5C1.567 11 0 9.433 0 7.5C0 5.567 1.567 4 3.5 4H4Z"
                         fill="#069C56"></path> </g></svg>
+                </div>
+                <Popup
+                    openOn="hover"
+                    offset={[0, -0]}>
+                    <div class="text-lg font-bold">{name}</div>
+                </Popup>
+            </Marker>
+        {/each}
+
+        {#each markersCropStops as { lngLat, label, name }, i (i)}
+            <Marker
+                {lngLat}
+                class="rounded-full bg-orange-200 p-1 shadow"
+            >
+                <div>🍀
                 </div>
                 <Popup
                     openOn="hover"
