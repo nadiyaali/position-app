@@ -329,7 +329,7 @@ Current method is too slow for large number of cropstops
                         alt="Game logo" />
                 </figure>
                 <div class="card-body">
-                    <p>Help us fight climate change.<br>Plant trees and make your city green</p>
+                    <p>Help us fight climate change. Plant trees and make your city green</p>
                     <div class="card-actions justify-center">
                         <button
                             class="btn btn-accent"
