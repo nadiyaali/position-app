@@ -389,9 +389,9 @@ Current method is too slow for large number of cropstops
         <div class="col-span-1 md:col-span-1 text-center">
             <div class="card card-compact bg-base-100 shadow-md">
                 <div class="card-body justify-center">
-                    <div>
-                        <h2 class="card-title justify-center">Eco Points : {scoreCount}</h2>
-                        <!-- The eco-point will go up by five each time a tree is planted. -->
+                    <div><h2 class="card-title justify-center">How to play</h2>
+                        <p>Click on a block to view its Heat Index, Double click to plant a tree</p>
+                        <br>
                     </div>
                     <h2 class="card-title justify-center">Your Location</h2>
                     <div></div>
@@ -475,9 +475,9 @@ Current method is too slow for large number of cropstops
         <div class="col-span-1 md:col-span-1 text-center">
             <div class="card card-compact bg-base-100 shadow-md">
                 <div class="card-body justify-center">
-                    <div><h2 class="card-title justify-center">How to play</h2>
-                        <p>Click on a block to view its Heat Index, Double click to plant a tree</p>
-                        <br>
+                    <div>
+                        <h2 class="card-title justify-center">Eco Points : {scoreCount}</h2>
+                        <!-- The eco-point will go up by five each time a tree is planted. -->
                     </div>
                     <div>
                         <h2 class="card-title justify-center">Found {count} Seed Stop </h2>
