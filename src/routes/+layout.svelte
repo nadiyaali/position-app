@@ -5,7 +5,7 @@
 
 <!-- Website title -->
 <svelte:head>
-    <title>Go Farm</title>
+    <title>City Green</title>
 </svelte:head>
 
 <!-- Header -->
