@@ -389,6 +389,10 @@ Current method is too slow for large number of cropstops
         <div class="col-span-1 md:col-span-1 text-center">
             <div class="card card-compact bg-base-100 shadow-md">
                 <div class="card-body justify-center">
+                    <div>
+                        <h2 class="card-title justify-center">Eco Points : {scoreCount}</h2>
+                        <!-- The eco-point will go up by five each time a tree is planted. -->
+                    </div>
                     <h2 class="card-title justify-center">Your Location</h2>
                     <div></div>
                     <!-- <h1 class="font-bold">Location</h1> -->
@@ -480,10 +484,6 @@ Current method is too slow for large number of cropstops
                         <!-- The count will go up by one each time you are within 10 meters of a marker. -->
                         <p>{cropStopPrize}</p>
                         <br>
-                    </div>
-                    <div>
-                        <h2 class="card-title justify-center">Eco Points : {scoreCount}</h2>
-                        <!-- The eco-point will go up by five each time a tree is planted. -->
                     </div>
                 </div>
             </div>
