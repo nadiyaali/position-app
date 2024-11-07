@@ -332,7 +332,7 @@ Current method is too slow for large number of cropstops
                         alt="Game logo" />
                 </figure>
                 <div class="card-body">
-                    <p>Help us fight climate change. Plant trees and make your city green</p>
+                    <p>Click to view Heat Index of a block, double-click to plant a tree</p>
                     <div class="card-actions justify-center">
                         <button
                             class="btn btn-accent"
@@ -389,10 +389,6 @@ Current method is too slow for large number of cropstops
         <div class="col-span-1 md:col-span-1 text-center">
             <div class="card card-compact bg-base-100 shadow-md">
                 <div class="card-body justify-center">
-                    <div><h2 class="card-title justify-center">How to play</h2>
-                        <p>Click on a block to view its Heat Index, Double click to plant a tree</p>
-                        <br>
-                    </div>
                     <h2 class="card-title justify-center">Your Location</h2>
                     <div></div>
                     <!-- <h1 class="font-bold">Location</h1> -->
@@ -478,9 +474,10 @@ Current method is too slow for large number of cropstops
                     <div>
                         <h2 class="card-title justify-center">Eco Points : {scoreCount}</h2>
                         <!-- The eco-point will go up by five each time a tree is planted. -->
+                        <br>
                     </div>
                     <div>
-                        <h2 class="card-title justify-center">Found {count} Seed Stop </h2>
+                        <h2 class="card-title justify-center">Found {count} Seed Stops </h2>
                         <!-- The count will go up by one each time you are within 10 meters of a marker. -->
                         <p>{cropStopPrize}</p>
                         <br>
