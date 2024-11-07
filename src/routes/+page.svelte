@@ -231,7 +231,7 @@ Current method is too slow for large number of cropstops
         markersCropStops.forEach((marker) => {
             const distance = getDistance([watchedMarker, marker])
 
-            const threshold = 10
+            const threshold = 20
 
             if (distance <= threshold) {
                 if (count === 0) {
@@ -468,7 +468,7 @@ Current method is too slow for large number of cropstops
         <div class="col-span-1 md:col-span-1 text-center">
             <div class="card card-compact bg-base-100 shadow-md">
                 <div class="card-body justify-center">
-                    <h2 class="card-title justify-center">Found {count} Crop Stop</h2>
+                    <h2 class="card-title justify-center">Found {count} Seed Stop</h2>
                     <!-- The count will go up by one each time you are within 10 meters of a marker. -->
                     {cropStopPrize}
                 </div>
@@ -659,7 +659,7 @@ Current method is too slow for large number of cropstops
                     <div class="text-lg font-bold">🍀</div>
                 </div>
                 <Popup openOn="hover">
-                    <b>Crop Stop: </b>{feature.properties.SITE_NAME}
+                    <b>Seed Stop: </b>{feature.properties.SITE_NAME}
                 </Popup>
             </MarkerLayer>
         </GeoJSON>

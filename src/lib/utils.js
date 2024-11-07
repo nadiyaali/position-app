@@ -90,7 +90,7 @@ export function getUHI() {
 const cropStopMessages = [
     'Congrats, you won a soil packet ✵',
     'Congrats, you won a seed packet ⁂',
-    'Congrats, you won a fertilizer packet 🌟',
+    'Congrats, you won a magic grow packet 🌟',
     'Congrats, you won a time bonus packet ⌚',
 ]
 
