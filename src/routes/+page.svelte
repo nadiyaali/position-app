@@ -152,6 +152,7 @@ Current method is too slow for large number of cropstops
      */
 
     function addMarker(e, label, name) {
+        scoreCount += 5
         markers = [
             ...markers,
             {
@@ -211,7 +212,9 @@ Current method is too slow for large number of cropstops
      * Trigger an action when getting close to a marker
      */
     let mapCenter
-    let count = 0 // number of markers found
+    let count = 0 // number of cropstop markers found
+    let scoreCount = 0
+   
     let cropStopPrize = ''
     $: if (watchedPosition.coords) { // this block is triggered when watchedPosition is updated
         // The tracked position in marker format
@@ -468,9 +471,20 @@ Current method is too slow for large number of cropstops
         <div class="col-span-1 md:col-span-1 text-center">
             <div class="card card-compact bg-base-100 shadow-md">
                 <div class="card-body justify-center">
-                    <h2 class="card-title justify-center">Found {count} Seed Stop</h2>
-                    <!-- The count will go up by one each time you are within 10 meters of a marker. -->
-                    {cropStopPrize}
+                    <div><h2 class="card-title justify-center">How to play</h2>
+                        <p>Click on a block to view its Heat Index, Double click to plant a tree</p>
+                        <br>
+                    </div>
+                    <div>
+                        <h2 class="card-title justify-center">Found {count} Seed Stop </h2>
+                        <!-- The count will go up by one each time you are within 10 meters of a marker. -->
+                        <p>{cropStopPrize}</p>
+                        <br>
+                    </div>
+                    <div>
+                        <h2 class="card-title justify-center">Eco Points : {scoreCount}</h2>
+                        <!-- The eco-point will go up by five each time a tree is planted. -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -516,8 +530,8 @@ Current method is too slow for large number of cropstops
         </Control>
 
         <!-- A map event to add a marker when clicked -->
-        <MapEvents on:click={event => addMarker(event, '', 'Your Tree')} />
-        <!-- <MapEvents on:click={event => addMarkerFarm(event, 'Farm Claimed', 'This is your farm')} /> -->
+        <MapEvents on:dblclick={event => addMarker(event, '', 'Your Tree')} />
+            <!-- <MapEvents on:click={event => addMarkerFarm(event, 'Farm Claimed', 'This is your farm')} /> -->
 
         <!-- This is how GeoJSON datasets are rendered -->
         <!-- promoteId must be a unique ID field in properties of each feature -->
@@ -535,7 +549,7 @@ Current method is too slow for large number of cropstops
                 manageHoverState
             >
                 <Popup
-                    openOn="hover"
+                    openOn="click"
                     let:data
                 >
                     {@const props = data?.properties}
@@ -557,6 +571,7 @@ Current method is too slow for large number of cropstops
         <!-- For-each loop syntax -->
         <!-- markers is an object, lngLat, label, name are the fields in the object -->
         <!-- i is the index, () indicates the unique ID for each item, duplicate IDs will lead to errors -->
+        <!-- Tree Marker -->
         {#each markers as { lngLat, label, name }, i (i)}
             <Marker
                 {lngLat}
